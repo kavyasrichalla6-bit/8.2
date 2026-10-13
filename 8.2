@@ -1,0 +1,117 @@
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class TipCalculator extends Application {
+
+    @Override
+    public void start(Stage stage) {
+
+        // Bill amount
+        Label billLabel = new Label("Bill Amount (₹):");
+        TextField billField = new TextField();
+        billField.setPromptText("Enter bill amount");
+
+        // Tip percentage options
+        Label tipLabel = new Label("Select Tip:");
+
+        RadioButton r10 = new RadioButton("10%");
+        RadioButton r15 = new RadioButton("15%");
+        RadioButton r20 = new RadioButton("20%");
+
+        ToggleGroup group = new ToggleGroup();
+        r10.setToggleGroup(group);
+        r15.setToggleGroup(group);
+        r20.setToggleGroup(group);
+
+        r15.setSelected(true);
+
+        HBox tipBox = new HBox(10, r10, r15, r20);
+
+        // Calculate button
+        Button calculateButton = new Button("Calculate Tip");
+
+        // Result labels
+        Label tipResult = new Label("Tip: ₹0.00");
+        Label totalResult = new Label("Total: ₹0.00");
+        Label message = new Label();
+
+        // Layout using GridPane
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(15);
+
+        grid.add(billLabel, 0, 0);
+        grid.add(billField, 1, 0);
+        grid.add(tipLabel, 0, 1);
+        grid.add(tipBox, 1, 1);
+
+        // Handle user interaction
+        calculateButton.setOnAction(event -> {
+            try {
+                double bill = Double.parseDouble(
+                    billField.getText().trim()
+                );
+
+                if (!Double.isFinite(bill) || bill < 0) {
+                    message.setText(
+                        "Enter a valid, non-negative bill amount."
+                    );
+                    return;
+                }
+
+                double percentage = 15;
+
+                if (r10.isSelected()) {
+                    percentage = 10;
+                } else if (r20.isSelected()) {
+                    percentage = 20;
+                }
+
+                double tip = bill * percentage / 100;
+                double total = bill + tip;
+
+                tipResult.setText(
+                    String.format("Tip: ₹%.2f", tip)
+                );
+
+                totalResult.setText(
+                    String.format("Total: ₹%.2f", total)
+                );
+
+                message.setText("Calculation successful!");
+
+            } catch (NumberFormatException e) {
+                message.setText("Please enter a valid bill amount.");
+            }
+        });
+
+        // Main layout
+        VBox root = new VBox(
+            20,
+            new Label("Tip Calculator"),
+            grid,
+            calculateButton,
+            tipResult,
+            totalResult,
+            message
+        );
+
+        root.setPadding(new Insets(20));
+
+        Scene scene = new Scene(root, 420, 300);
+
+        stage.setTitle("JavaFX Tip Calculator");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
